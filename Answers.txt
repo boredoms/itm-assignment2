@@ -1,0 +1,53 @@
+------------------------------------------------
+Assignment 2 ­ Digital Audio and Video Processing
+------------------------------------------------
+
+Please answer the following questions in written form (1-2 A4 pages max.)
+
+-----------------------------------------------------------------
+Task 2.1: play (encoded) audio files
+-----------------------------------------------------------------
+
+* Describe the physical appearance of sound and how is it converted to digital sampled 
+audio. Explain how sampling works and the meaning of the terms amplitude, 
+sampling frequency, and quantization.
+
+------------------------------------------------------------------------------
+Task 2.2: generate "thumbnails" from audio files
+------------------------------------------------------------------------------
+
+* Why do WAV files require more storage space than MP3 files?
+
+* In the Java Sound API: what is a sample, what is a frame?
+
+----------------------------------------------------------
+Task 2.3: extract/get audio metadata
+----------------------------------------------------------
+
+* How is volume (i.e., how loud a sound is) reflected in analog and 
+digital audio signals? Why does it make sense to perform non-uniform quantization?
+
+* What is Pulse Code Modulation (PCM)?
+
+----------------------------------------------------------
+Task 2.4: extract meta data from video files
+----------------------------------------------------------
+
+----------------------------------------------------------
+Task 2.5: extract frames from video files
+----------------------------------------------------------
+
+* What is (de­)multiplexing? What is a codec?
+
+* In what color space are images usually represented in video files? 
+What color space is usually used for computer images?
+
+----------------------------------------------------------
+Task 2.6: video thumbnail
+----------------------------------------------------------
+
+* What is video transcoding?
+
+* Briefly describe and compare the video codecs we used in this assignment.
+
+* How does changing the configuration of the ImageCompare Object affect the thumbnail?
