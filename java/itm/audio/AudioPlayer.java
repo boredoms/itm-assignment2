@@ -85,12 +85,21 @@ public class AudioPlayer {
 
 		// open audio stream
 		
+		din = AudioSystem.getAudioInputStream(input);
+
+
 		// get format
-		
+		AudioFormat audioFormat = din.getFormat();
+
 		// get decoded format
 		
+		AudioFormat decformat = new AudioFormat(Encoding.PCM_SIGNED, audioFormat.getSampleRate(),audioFormat.getSampleSizeInBits()
+				, audioFormat.getChannels(),audioFormat.getFrameSize(),audioFormat.getSampleRate(), false);
+		
 		// get decoded audio input stream
- 
+		
+		din = AudioSystem.getAudioInputStream(decformat, din);
+		
 		return din;
 	}
 
@@ -113,13 +122,36 @@ public class AudioPlayer {
 		// Fill in your code here!
 		// ***************************************************************
 
+		
 		// get audio format
+		
+		System.out.println(audio.getFormat());
+		AudioFormat audioFormat = audio.getFormat();
 		
 		// get a source data line
 		
-		// read samples from audio and write them to the data line 
+		SourceDataLine sdline = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, audioFormat));
+		sdline.open(audioFormat);
+		sdline.start();
+
+		// read samples from audio and write them to the data line
+
+		int bytes = 4096;
+		byte[] data = new byte [bytes];
+		int count = 0;
+		
+		while (count != -1) {
+			count = audio.read(data, 0 , data.length);
+			if(count >= 0) 
+				sdline.write(data, 0, count);
+		}
+		
 
 		// properly close the line!
+		
+		sdline.drain();
+		sdline.stop();
+		sdline.close();
 	}
 
 	/**
