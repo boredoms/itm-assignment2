@@ -15,10 +15,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import javax.sound.sampled.AudioFormat.Encoding;
-import javax.sound.sampled.DataLine;
-
-
+import com.xuggle.xuggler.*;
 
 /**
  * Plays an audio file using the system's default sound output device
@@ -87,24 +84,15 @@ public class AudioPlayer {
 		// ***************************************************************
 		// Fill in your code here!
 		// ***************************************************************
-
+        din = AudioSystem.getAudioInputStream(input);
 		// open audio stream
-		
-		din = AudioSystem.getAudioInputStream(input);
-
-
+		AudioFormat format = din.getFormat();
 		// get format
-		AudioFormat audioFormat = din.getFormat();
-
+		AudioFormat decoded_format = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), format.isBigEndian());
 		// get decoded format
-		
-		AudioFormat decformat = new AudioFormat(Encoding.PCM_SIGNED, audioFormat.getSampleRate(),audioFormat.getSampleSizeInBits()
-				, audioFormat.getChannels(),audioFormat.getFrameSize(),audioFormat.getSampleRate(), false);
-		
+		din = AudioSystem.getAudioInputStream(decoded_format, din);
 		// get decoded audio input stream
-		
-		din = AudioSystem.getAudioInputStream(decformat, din);
-		
+ 
 		return din;
 	}
 
@@ -126,37 +114,21 @@ public class AudioPlayer {
 		// ***************************************************************
 		// Fill in your code here!
 		// ***************************************************************
-
-		
+        AudioFormat format = audio.getFormat();
 		// get audio format
-		
-		System.out.println(audio.getFormat());
-		AudioFormat audioFormat = audio.getFormat();
-		
+		SourceDataLine sdl = AudioSystem.getSourceDataLine(format);
+        sdl.open(format);
 		// get a source data line
-		
-		SourceDataLine sdline = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, audioFormat));
-		sdline.open(audioFormat);
-		sdline.start();
+        byte[] buffer = new byte[1024];
+        int bytes_read;
 
-		// read samples from audio and write them to the data line
-
-		int bytes = 4096;
-		byte[] data = new byte [bytes];
-		int count = 0;
-		
-		while (count != -1) {
-			count = audio.read(data, 0 , data.length);
-			if(count >= 0) 
-				sdline.write(data, 0, count);
-		}
-		
-
+        do {
+            bytes_read = audio.read(buffer);
+            sdl.write(buffer, bytes_read, 0);
+        } while (bytes_read >= 0);
+		// read samples from audio and write them to the data line 
+        sdl.close();
 		// properly close the line!
-		
-		sdline.drain();
-		sdline.stop();
-		sdline.close();
 	}
 
 	/**
