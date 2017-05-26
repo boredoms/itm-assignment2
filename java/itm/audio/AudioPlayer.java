@@ -88,7 +88,7 @@ public class AudioPlayer {
 		// open audio stream
 		AudioFormat format = din.getFormat();
 		// get format
-		AudioFormat decoded_format = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), format.isBigEndian());
+		AudioFormat decoded_format = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, format.isBigEndian());
 		// get decoded format
 		din = AudioSystem.getAudioInputStream(decoded_format, din);
 		// get decoded audio input stream

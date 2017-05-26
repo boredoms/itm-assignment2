@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.xuggle.xuggler.*;
+
 /**
  * This class reads video files, extracts metadata for both the audio and the
  * video track, and writes these metadata to a file.
@@ -113,6 +115,42 @@ public class VideoThumbnailGenerator {
 		// ***************************************************************
 		// Fill in your code here!
 		// ***************************************************************
+        IContainer container = IContainer.make();
+        if (container.open(input.toString(), IContainer.Type.READ, null) < 0)
+            throw new IOException("Could not open file: " + input);
+
+        int numStreams = container.getNumStreams();
+        int videoStreamId = -1;
+        IStreamCoder videoCoder = null;
+        for (int i = 0; i < numStreams; i++) {
+            IStream stream = container.getStream(i);
+            IStreamCoder coder = stream.getStreamCoder();
+
+            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO) {
+                videoStreamId = i;
+                videoCoder = coder;
+                break;
+            }
+        }
+
+        if (videoStreamId == -1)
+            throw new RuntimeException("could not find video stream in " + input);
+
+        if (videoCoder.open() < 0)
+            throw new RuntimeException("could not open video decoder");
+
+        IVideoResampler resampler = null;
+
+        if (videoCoder.getPixelType() != IPixelFormat.Type.BGR24) {
+            resampler = IVideoResampler.make(videoCoder.getWidth(), videoCoder.getHeight(), IPixelFormat.Type.BGR24,
+                                             videoCoder.getWidth(), videoCoder.getHeight(), videoCoder.getPixelType());
+
+            if (resampler == null)
+                throw new RuntimeException("could not find resampler");
+        }
+
+        long firstTimestamp = Global.NO_PTS;
+        IPacket packet = IPacket.make();
 
 		// extract frames from input video
 		
