@@ -12,6 +12,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import java.util.Map;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
 /**
  * This class reads audio files of various formats and stores some basic audio
  * metadata to text files. It can be called with 3 parameters, an input
@@ -139,21 +146,73 @@ public class AudioMetadataGenerator {
 		// ***************************************************************
 
 		// create an audio metadata object
-		AudioMedia media = (AudioMedia) MediaFactory.createMedia(input);		
-
+		AudioMedia media = (AudioMedia) MediaFactory.createMedia(input);	
+	
 		// load the input audio file, do not decode
+		AudioInputStream audioInputStream = null;
+		try {
 
-		// read AudioFormat properties
+			audioInputStream = AudioSystem.getAudioInputStream(input);
+		
+			// read AudioFormat properties
+		
+			AudioFormat audioFormat = audioInputStream.getFormat();
 
-		// read file-type specific properties
+			// read file-type specific properties
+		
+			AudioFileFormat audioFileFormat = AudioSystem.getAudioFileFormat(input);
+		
+			Map<String, Object> properties = audioFileFormat.properties();
+		
+			media.setDuration( (Long) properties.get("duration"));
+			media.setAuthor((String) properties.get("author"));
+			media.setTitle((String) properties.get("title"));
+			media.setDate((String) properties.get("date"));
+			media.setComment((String) properties.get("comment"));
+			media.setAlbum((String) properties.get("album"));
+			
+			// you might have to distinguish what properties are available for what audio format
+		
+			AudioFileFormat.Type type = audioFileFormat.getType();
+		
+			// mp3
+			if (type.getExtension().equals("mp3")) {
+				media.setTrack((String) properties.get("mp3.id3tag.track"));
+				media.setComposer((String) properties.get("mp3.id3tag.composer"));
+				media.setGenre((String) properties.get("mp3.id3tag.genre"));
+				media.setBitrate ((Integer) properties.get("mp3.bitrate.nominal.bps"));
+			}
+		
+			// for ogg file format
+			if (type.equals("ogg")|| type.equals("Ogg")) {	
+				media.setTrack((String) properties.get("ogg.comment.track"));
+				media.setGenre((String) properties.get("ogg.comment.genre"));
+				media.setComposer((String) properties.get("ogg.comment.composer"));
+				media.setBitrate ((Long) properties.get("ogg.bitrate.nominal.bps"));
+			}
+		
+		 	// for wave file format
+		 	if (type.equals("wave")||type.equals("wav")||type.equals("WAVE")) {
+			 	media.setTrack((String) properties.get("wave.id3tag.track"));
+				media.setGenre((String) properties.get("wave.id3tag.genre"));
+				media.setComposer((String) properties.get("wave.id3tag.composer"));
+				media.setBitrate ((Integer) properties.get("wave.bitrate.nominal.bps"));
+			}
+		
+			// add a "audio" tag
+			media.addTag("audio");
+		}
 
-		// you might have to distinguish what properties are available for what audio format
-
-		// add a "audio" tag
-
+		catch(Exception e) {
+			System.out.println("Error:"+ e.getMessage());
+		}
+		
 		// close the audio and write the md file.
-
+		
+		media.writeToFile(outputFile);
+		audioInputStream.close();
 		return media;
+
 	}
 
 	/**
