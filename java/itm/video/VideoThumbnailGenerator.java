@@ -12,6 +12,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.xuggle.xuggler.*;
+import com.xuggle.mediatool.*;
+import com.xuggle.xuggler.video.*;
+import java.awt.image.BufferedImage;
+
+import java.awt.image.AffineTransformOp;
+import java.awt.geom.AffineTransform;
+import java.awt.Graphics2D;
+import javax.imageio.ImageIO;
 
 /**
  * This class reads video files, extracts metadata for both the audio and the
@@ -115,6 +123,8 @@ public class VideoThumbnailGenerator {
 		// ***************************************************************
 		// Fill in your code here!
 		// ***************************************************************
+        long timespan_us = timespan * 1000000;
+
         IContainer container = IContainer.make();
         if (container.open(input.toString(), IContainer.Type.READ, null) < 0)
             throw new IOException("Could not open file: " + input);
@@ -149,23 +159,129 @@ public class VideoThumbnailGenerator {
                 throw new RuntimeException("could not find resampler");
         }
 
-        long firstTimestamp = Global.NO_PTS;
+        long last_write = Global.NO_PTS;
         IPacket packet = IPacket.make();
+        ArrayList<BufferedImage> frames = new ArrayList<BufferedImage>();
+
+        while (container.readNextPacket(packet) >= 0) {
+            if (packet.getStreamIndex() != videoStreamId)
+                continue;
+
+            IVideoPicture pic = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
+            int offset = 0;
+
+            while (offset < packet.getSize()) {
+                offset += videoCoder.decodeVideo(pic, packet, offset);
+
+                if (!pic.isComplete())
+                    continue;
+
+                if (timespan > 0 && pic.getPts() - last_write <= timespan_us) {
+                    break;
+                } else {
+                    last_write = pic.getPts();
+                    if (resampler != null) {
+                        IVideoPicture pic2 = IVideoPicture.make(IPixelFormat.Type.BGR24, videoCoder.getWidth(), videoCoder.getHeight());
+                        resampler.resample(pic2, pic);
+                        frames.add(Utils.videoPictureToImage(pic2));
+                    } else {
+                        frames.add(Utils.videoPictureToImage(pic));
+                    }
+                }
+            }
+        }
+        videoCoder.close();
+        container.close();
 
 		// extract frames from input video
-		
+		File watermark_file = new File("./chen_watermark.png");
+        BufferedImage watermark = ImageIO.read(watermark_file);
+
+        double thumb_scale_factor = (double)frames.get(0).getHeight() / watermark.getHeight();
+        AffineTransform scale = AffineTransform.getScaleInstance(thumb_scale_factor, thumb_scale_factor);
+        AffineTransformOp op = new AffineTransformOp(scale, AffineTransformOp.TYPE_BICUBIC);
+        watermark = op.filter(watermark, null);
+
+        for (BufferedImage img : frames) {
+            Graphics2D g2d = (Graphics2D) img.getGraphics();
+            g2d.drawImage(watermark, 0, 0, null);
+        }
+
 		// add a watermark of your choice and paste it to the image
         // e.g. text or a graphic
-
+        IContainer writer = IContainer.make();
+        if (writer.open(outputFile.toString(), IContainer.Type.WRITE, null) < 0)
+            throw new RuntimeException("failed to open write container");
 		// create a video writer
 
+        ICodec outCodec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_H264);
+        IStream outStream = writer.addNewStream(outCodec);
+        IStreamCoder outCoder = outStream.getStreamCoder();
+
+        IRational frameRate = IRational.make(1, 1);
+
+        outCoder.setHeight(frames.get(0).getHeight());
+        outCoder.setWidth(frames.get(0).getWidth());
+        outCoder.setFrameRate(frameRate);
+        outCoder.setTimeBase(IRational.make(frameRate.getDenominator(), frameRate.getNumerator()));
+        outCoder.setPixelType(IPixelFormat.Type.YUV420P);
+
+        outCoder.open(null, null);
+        writer.writeHeader();
+
 		// add a stream with the proper width, height and frame rate
-		
+        
+		if (timespan == 0) {
+            BufferedImage last = null;
+            ArrayList<BufferedImage> temp = new ArrayList<BufferedImage>();
+            for (BufferedImage img : frames) {
+                if (last == null) {
+                    last = img;
+                    continue;
+                }
+
+                ImageCompare comparator = new ImageCompare(last, img);
+
+                comparator.compare();
+
+                if (!comparator.match()) {
+                    last = img;
+                    temp.add(img);
+                }
+            }
+
+            frames = temp;
+        }
 		// if timespan is set to zero, compare the frames to use and add 
 		// only frames with significant changes to the final video
+        long timestamp = 0;
+        for (BufferedImage img : frames) {
+            BufferedImage outputImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+            outputImg.getGraphics().drawImage(img, 0, 0, null);
 
+            IPacket outPacket = IPacket.make();
+
+            IConverter converter = ConverterFactory.createConverter(outputImg, outCoder.getPixelType());
+
+            IVideoPicture vpic = converter.toPicture(outputImg, timestamp);
+
+
+
+            if (outCoder.encodeVideo(outPacket, vpic, 0) < 0) {
+                throw new RuntimeException("could not encode video");
+            }
+
+            if (outPacket.isComplete()) {
+                if (writer.writePacket(outPacket) < 0)
+                    throw new RuntimeException("could not write to output");
+            }
+            timestamp += 1000000;
+        }
 		// loop: get the frame image, encode the image to the video stream
-		
+        writer.writeTrailer();
+
+		outCoder.close();
+        writer.close();
 		// Close the writer
 
 		return outputFile;
