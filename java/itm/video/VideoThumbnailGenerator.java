@@ -206,7 +206,6 @@ public class VideoThumbnailGenerator {
             Graphics2D g2d = (Graphics2D) img.getGraphics();
             g2d.drawImage(watermark, 0, 0, null);
         }
-
 		// add a watermark of your choice and paste it to the image
         // e.g. text or a graphic
         IContainer writer = IContainer.make();
@@ -214,7 +213,7 @@ public class VideoThumbnailGenerator {
             throw new RuntimeException("failed to open write container");
 		// create a video writer
 
-        ICodec outCodec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_H264);
+        ICodec outCodec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_MPEG4);
         IStream outStream = writer.addNewStream(outCodec);
         IStreamCoder outCoder = outStream.getStreamCoder();
 
@@ -252,6 +251,7 @@ public class VideoThumbnailGenerator {
 
             frames = temp;
         }
+        System.out.println("The video thumbnail will have: " + frames.size() + " frames.");
 		// if timespan is set to zero, compare the frames to use and add 
 		// only frames with significant changes to the final video
         long timestamp = 0;
