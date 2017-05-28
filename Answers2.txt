@@ -1,0 +1,127 @@
+﻿------------------------------------------------
+
+Assignment 2 ­ Digital Audio and Video Processing
+
+------------------------------------------------
+
+
+Please answer the following questions in written form 
+(1-2 A4 pages max.)
+
+
+-----------------------------------------------------------------
+
+
+
+
+Task 2.1: play (encoded) audio files
+
+-----------------------------------------------------------------
+
+* Describe the physical appearance of sound and how is it converted to digital sampled 
+audio. Explain how sampling works and the meaning of the terms amplitude, 
+
+sampling frequency, and quantization.
+
+
+------------------------------------------------------------------------------
+
+Der Klang ist eine Vibration. Die Ausbreitung erfolgt in Form einer Welle. Je schneller die Schwingung desto höher der Ton. 
+Je stärker der Druck, desto lauter ist es. Digitale Aufnahme tastet die Wellenform bei gleichmäßig beanstandeten Zeitpunkten, 
+repräsentiert jede Probe als eine genaue Zahl. Digital-Aufzeichnungen, ob auf einer Compact Disc gespeichert (CD), 
+digital Audio Band (DAT- digital audio tape), oder auf einem persönlichen Computer. Nicht abbauend über die Zeit perfekt kopiert werden, 
+ohne dass zusätzliche lästige Geräusche entstehen. Das Signal wird mit einer Vorrichtung mit unterschiedlichen physikalischen Grenzen abgetastet.
+Nehmen Sie regelmäßige Messungen der Wellenform während des gesamten Zyklus vor.
+Amplitude (loudness): Die Lautheit ist eine festgelegte Größe zur proportionalen Abbildung des menschlichen Lautstärkeempfindens. 
+Die Maßeinheit der Lautheit ist das Sone mit dem Einheitenzeichen sone. (or measurements of amplitude)
+Sampling Frequency: Abtastung (Signalverarbeitung) ist einfach die Anzahl der Proben pro Sekunde. Z.B. bei einer Abtastrate werden "44.1KHz" benutzt, 
+was bedeutet, dass der Wandler 44.100 Messungen der Amplitude pro Sekunde dauert. 
+Die Abtastung ist unabhängig von der Frequenz die in Schallwellen umgewandelt wird.
+Quantization: die Umsetzung eines analogen Signals in ein digitales.
+
+Task 2.2: generate "thumbnails" from audio files
+
+------------------------------------------------------------------------------
+
+
+* Why do WAV files require more storage space than MP3 files?
+
+----------------------------------------------------------
+
+MP3 ist ein verlustbehaftetes Format, weil es die Audio-komprimiert. 
+Dies soll Dateibereich sparen, es tut dies, indem die unnötigen Daten aussortiert werden. 
+Wav auf der anderen Seite ist ein roher Klang und in der Regel nur für Sound-Effekte verwendet, da die Dateigröße so groß ist. 
+
+
+
+*In the Java Sound API: what is a sample, what is a frame?
+
+
+Sample ist der Wert oder die Menge von Werten an einem Punkt in Zeit oder Raum, und in  einem Rahmen. Normalerweise beträgt er 44100.
+
+Frame hat die Informationen über alle Kanäle. Die Größe des Rahmens ist die Größe ein Sample mal Anzahl der Kanäle.
+
+Task 2.3: extract/get audio metadata
+----------------------------------------------------------
+
+
+* How is volume (i.e., how loud a sound is) reflected in analog and 
+digital audio signals? Why does it make sense to perform non-uniform quantization?
+
+
+Das Volumen wird in ein analoges Signal durch die Amplitude ausgedrückt. 
+Im digitalen Format aus den Quantisierungswerten ersichtlich?
+
+Weil ungleichmäßige Quantisierungen bilden mehr fein-Abstand-Stufen wo Menschen mit den meisten Schärfen hören.
+
+* What is Pulse Code Modulation (PCM)?
+
+----------------------------------------------------------
+
+Die Pulscodemodulation ist ein Modulationsverfahren, das analoge Signale in binären Code umwandelt. PCM-Signale lassen sich einfach speichern,
+verarbeiten und übertragen.
+
+
+----------------------------------------------------------
+Task 2.4: extract meta data from video files
+----------------------------------------------------------
+
+----------------------------------------------------------
+
+Task 2.5: extract frames from video files
+----------------------------------------------------------
+
+
+
+* What is (de­)multiplexing? What is a codec?
+
+
+Multiplexing ist ein Verfahren, mit dem mehrere analoge Nachrichtensignale oder digitale Datenströme kombiniert werden, 
+in ein Signal über ein gemeinsam genutztes Medium und De-Multiplexieren umgekehrt wird.
+Codec ist ein Gerät oder ein Computerprogramm, die zum Codieren oder Decodieren eines digitalen Signals verwendet wird.
+
+* In what color space are images usually represented in video files? 
+What color space is usually used for computer images?
+
+
+YUV Modell für Videos (Die menschliche Wahrnehmung ist empfindlicher gegenüber Leuchtdichte (Helligkeit) als Farben. 
+Also statt Farben zu trennen kann man die Helligkeit trennen, RGB (Rot-Grün-Blau) Additive Modell für die Computerbilder.
+
+----------------------------------------------------------
+
+Task 2.6: video thumbnail
+
+----------------------------------------------------------
+
+
+* What is video transcoding?
+
+
+Transcoding ist die direkte Analog-zu-Analog- oder Digital-zu-Digital-Umwandlung einer Codierung zu einer anderen 
+(Überführung von einem Codec zu dem anderen)
+* Briefly describe and compare the video codecs we used in this assignment.
+
+
+CINEPAK(lossy): basierend auf Vektorquantisierung, MSMPEG4V3 (lossy), INDEO3 (lossy) Es ist in erster Linie zu kodieren Video in AVI-Dateien und betätigt 
+vollständig im YUV-Farbraum, THEORA (free lossy): es ist eine variable Bitrate, DCT-basierte Video-Komprimierungsverfahren. 
+Wie die meisten gängigen Video-Codecs.

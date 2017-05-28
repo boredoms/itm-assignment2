@@ -26,6 +26,7 @@ import com.xuggle.xuggler.IContainer;
 import com.xuggle.xuggler.IStream;
 import com.xuggle.xuggler.IStreamCoder;
 import com.xuggle.xuggler.ICodec.Type;
+import com.xuggle.xuggler.ICodec;
 
 /**
  * This class reads video files, extracts metadata for both the audio and the
@@ -146,11 +147,54 @@ public class VideoMetadataGenerator {
 		// create video media object
 		VideoMedia media = (VideoMedia) MediaFactory.createMedia(input);
 
-		// set video and audio stream metadata 
-		
-		// add video tag
+		try {
+			
+			// add video tag
+			media.addTag("video");
 
-		// write metadata
+			// set video and audio stream metadata 
+
+			IContainer container = IContainer.make();
+
+			container.open(input.toString(),  IContainer.Type.READ, null);
+
+			int streamnum = container.getNumStreams();
+
+			media.setVideoLength((int)container.getDuration()/1000/1000);
+			int numAudio=0;
+			
+			// write metadata
+
+
+			for (int i=0; i<streamnum; i++){
+
+				IStream s=container.getStream(i);
+				IStreamCoder sc=s.getStreamCoder();
+				if(sc.getCodecType()== ICodec.Type.CODEC_TYPE_VIDEO){
+					//video
+					media.setVideoCodec(sc.getCodec().toString());
+					media.setVideoCodecID(sc.getCodecID().toString());
+					media.setVideoFrameRate(sc.getFrameRate());
+					media.setVideoHeigth(sc.getHeight());
+					media.setVideoWidth(sc.getWidth());
+
+				} else if (sc.getCodecType()== ICodec.Type.CODEC_TYPE_AUDIO) {
+					//audio
+					media.setAudioCodec(sc.getCodec().toString());
+					media.setAudioCodecID(sc.getCodecID().toString());
+					numAudio++;
+					media.setAudioSampleRate(sc.getSampleRate());
+					media.setAudioBitRate(sc.getBitRate());
+				}
+			}
+
+			media.setAudioChannels(numAudio);
+			
+			media.writeToFile(outputFile);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		return media;
 	}

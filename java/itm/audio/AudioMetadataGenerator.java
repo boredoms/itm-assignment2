@@ -175,24 +175,22 @@ public class AudioMetadataGenerator {
 		
 			AudioFileFormat.Type type = audioFileFormat.getType();
 		
-			// mp3
 			if (type.getExtension().equals("mp3")) {
+
 				media.setTrack((String) properties.get("mp3.id3tag.track"));
 				media.setComposer((String) properties.get("mp3.id3tag.composer"));
 				media.setGenre((String) properties.get("mp3.id3tag.genre"));
 				media.setBitrate ((Integer) properties.get("mp3.bitrate.nominal.bps"));
-			}
-		
-			// for ogg file format
-			if (type.equals("ogg")|| type.equals("Ogg")) {	
+
+			} else if (type.equals("ogg")|| type.equals("Ogg")) {	
+
 				media.setTrack((String) properties.get("ogg.comment.track"));
 				media.setGenre((String) properties.get("ogg.comment.genre"));
 				media.setComposer((String) properties.get("ogg.comment.composer"));
 				media.setBitrate ((Long) properties.get("ogg.bitrate.nominal.bps"));
-			}
-		
-		 	// for wave file format
-		 	if (type.equals("wave")||type.equals("wav")||type.equals("WAVE")) {
+
+			} else if (type.equals("wave")||type.equals("wav")||type.equals("WAVE")) {
+
 			 	media.setTrack((String) properties.get("wave.id3tag.track"));
 				media.setGenre((String) properties.get("wave.id3tag.genre"));
 				media.setComposer((String) properties.get("wave.id3tag.composer"));
