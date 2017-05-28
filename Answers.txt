@@ -11,14 +11,17 @@ Task 2.1: play (encoded) audio files
 * Describe the physical appearance of sound and how is it converted to digital sampled 
 audio. Explain how sampling works and the meaning of the terms amplitude, 
 sampling frequency, and quantization.
+Physically, sound is a wave travelling through a medium with a certain speed, frequency and amplitude. Digitally, at least when using PCM encoding these parameters (other than the speed, which depends on the medium and is therefore irrelevant) are preserved well, since the encoded file basically describes the sound wave of the sound, where a sample represents the amplitude at a certain point in time and the sample rate represents the amount of samples recorded per second, which gives an upper limit to the frequency that can be represented, this limit is half the sample rate and called the Nyquist frequency. The amplitude is represented by a signed integer which gives the magnitude of the wave. Quantization is the process of approximating the amplitude to a digital representation, since the bit depth in a digital recording is limited.
 
 ------------------------------------------------------------------------------
 Task 2.2: generate "thumbnails" from audio files
 ------------------------------------------------------------------------------
 
 * Why do WAV files require more storage space than MP3 files?
+They require more space since WAV is a lossless, uncompressed format, that is just the PCM data representing the sound, while MP3 uses a compression algorithm based on psychoacoustic principles to compress sound in a way that preserves the qualities of sound that are more important to humans.
 
 * In the Java Sound API: what is a sample, what is a frame?
+A sample is a single PCM sample, so the value of the smallest time quantum of the audio file, with its duration given by the files sample rate. A frame contains the samples of a given point in time for all channels of the audio file, so its size is the amount of channels * sample size.
 
 ----------------------------------------------------------
 Task 2.3: extract/get audio metadata
@@ -26,8 +29,10 @@ Task 2.3: extract/get audio metadata
 
 * How is volume (i.e., how loud a sound is) reflected in analog and 
 digital audio signals? Why does it make sense to perform non-uniform quantization?
+In analog audio signals the amplitude and therefore loudness is given by the peak voltage of the wave, in digital audio systems it is given by the value of a sample. Since certain ranges of the dynamic spectrum require more detail than others, for example very low amplitude signals might require less precise amplitude representation, it makes sense to use non-uniform quantization of signals.
 
 * What is Pulse Code Modulation (PCM)?
+PCM is a method of digitizing audio from an analog source. The sound is encoded as a stream of samples representing the amplitude of the sound at that point in time at a constant rate called the sample rate.
 
 ----------------------------------------------------------
 Task 2.4: extract meta data from video files
@@ -38,16 +43,21 @@ Task 2.5: extract frames from video files
 ----------------------------------------------------------
 
 * What is (de­)multiplexing? What is a codec?
+Multiplexing and de-multiplexing are the processes to combine multiple streams into a single stream and vice versa. A codec is a pair of corresponding algorithms for en- and decoding a media file. 
 
 * In what color space are images usually represented in video files? 
 What color space is usually used for computer images?
+Video files generally use the YUV colour space that encodes color as a function of luminance and two chrominance components, while images generally use a simple RGB color space.
 
 ----------------------------------------------------------
 Task 2.6: video thumbnail
 ----------------------------------------------------------
 
 * What is video transcoding?
+Transcoding is the process of transforming video from one codec to another.
 
 * Briefly describe and compare the video codecs we used in this assignment.
+The only codec we used directly was MPEG4, a lossy codec used commonly for video files on the internet. It can be used inside of AVI containers. I tried to use H264 encoding as well, which is the de-facto standard encoding for video shared on the internet, but the files that were produced with this encoding by xuggler suffered from various bugs.
 
 * How does changing the configuration of the ImageCompare Object affect the thumbnail?
+Changing the the configuration changes how sensitive the object is to change and therefore how many frames end up in the thumbnail.
